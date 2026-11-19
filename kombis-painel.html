@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kombi's - Painel de Pedidos</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; background: #111; overflow: hidden; }
+iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+</style>
+</head>
+<body>
+<iframe id="painel" src="https://conta.saipos.com/#/delivery-display" allowfullscreen></iframe>
+
+<script>
+const css = `
+  /* FUNDO GERAL */
+  body, #app, [class*="delivery"], [class*="display"] {
+    background: #111111 !important;
+    color: #ffffff !important;
+    font-family: Arial, sans-serif !important;
+  }
+
+  /* CABEÇALHOS DAS COLUNAS */
+  [class*="column-title"], [class*="columnTitle"],
+  [class*="col-title"], [class*="status-title"],
+  [class*="section-title"] {
+    background: #1e1e1e !important;
+    color: #ffffff !important;
+    font-size: 22px !important;
+    font-weight: 900 !important;
+    letter-spacing: 2px !important;
+    text-transform: uppercase !important;
+    padding: 16px 20px !important;
+    border-bottom: 2px solid #333333 !important;
+  }
+
+  /* CARDS BASE */
+  [class*="order-card"], [class*="orderCard"],
+  [class*="card"], [class*="pedido"] {
+    background: #1e1e1e !important;
+    border-radius: 10px !important;
+    border-left: 5px solid #555555 !important;
+    border-top: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    padding: 12px 16px !important;
+    margin: 8px 10px !important;
+    box-shadow: none !important;
+  }
+
+  /* TEXTOS DOS CARDS */
+  [class*="customer-name"], [class*="customerName"],
+  [class*="nome"], [class*="client"] {
+    font-size: 20px !important;
+    font-weight: 900 !important;
+    color: #ffffff !important;
+    text-transform: uppercase !important;
+  }
+
+  [class*="order-number"], [class*="orderNumber"],
+  [class*="numero"], [class*="number"] {
+    font-size: 11px !important;
+    color: rgba(255,255,255,0.45) !important;
+    font-weight: 600 !important;
+  }
+
+  [class*="item-count"], [class*="items"], [class*="itens"] {
+    font-size: 13px !important;
+    color: rgba(255,255,255,0.6) !important;
+  }
+
+  [class*="time"], [class*="tempo"], [class*="timer"] {
+    font-size: 11px !important;
+    color: rgba(255,255,255,0.35) !important;
+  }
+
+  /* KOMBI'S GRILL - vermelho */
+  [class*="card"][data-store*="Grill"],
+  [class*="order"][data-store*="Grill"] {
+    background: #200a0a !important;
+    border-left-color: #C8151B !important;
+  }
+
+  /* KOMBI'S BURGER - amarelo */
+  [class*="card"][data-store*="Burger"],
+  [class*="order"][data-store*="Burger"] {
+    background: #1e1500 !important;
+    border-left-color: #F5A623 !important;
+  }
+
+  /* KOMBI'S HOT DOG - laranja */
+  [class*="card"][data-store*="Dog"],
+  [class*="card"][data-store*="Hot"],
+  [class*="order"][data-store*="Dog"] {
+    background: #1e0e00 !important;
+    border-left-color: #E8600A !important;
+  }
+
+  /* COLUNAS */
+  [class*="preparo"], [class*="preparing"],
+  [class*="in-progress"], [class*="inProgress"] {
+    background: #161616 !important;
+  }
+
+  [class*="pronto"], [class*="ready"],
+  [class*="done"], [class*="completed"] {
+    background: #121a12 !important;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px !important; }
+  ::-webkit-scrollbar-track { background: #111 !important; }
+  ::-webkit-scrollbar-thumb { background: #333 !important; border-radius: 4px !important; }
+
+  /* ESCONDER NAVBAR E CHROME DESNECESSÁRIO */
+  [class*="navbar"], [class*="sidebar"],
+  [class*="topbar"], nav { display: none !important; }
+`;
+
+function injectCSS(iframeDoc) {
+  const style = iframeDoc.createElement('style');
+  style.id = 'kombis-custom';
+  style.textContent = css;
+  iframeDoc.head.appendChild(style);
+  console.log('CSS Kombi injetado com sucesso');
+}
+
+const iframe = document.getElementById('painel');
+
+iframe.addEventListener('load', () => {
+  try {
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+    injectCSS(doc);
+
+    // Reinjecta se o Saipos navegar internamente (SPA)
+    const observer = new MutationObserver(() => {
+      if (!doc.getElementById('kombis-custom')) {
+        injectCSS(doc);
+      }
+    });
+    observer.observe(doc.body, { childList: true, subtree: true });
+
+  } catch(e) {
+    console.warn('Não foi possível injetar CSS no iframe:', e);
+  }
+});
+</script>
+</body>
+</html>
